@@ -9,3 +9,4 @@ def set_scene(name):
 def update():
 	scene.update()
 	scene.render((0, 0))
+	scene.post_render((0, 0))

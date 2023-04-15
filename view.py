@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*
+
 import curses
 import keys
 from common import add, sub
@@ -23,6 +25,26 @@ def init():
 	for i in range(0, curses.COLORS):
 		curses.init_pair(i + 1, i, -1)
 	stdscr.keypad(True)
+
+def screenshot():
+	rows = []
+	rows.append("█" * (size[1]+4))
+	for y in range(size[0]):
+		rows.append("██")
+		for x in range(size[1]):
+			rows[-1] += chr(stdscr.inch(y, x) & 0xFF)
+		rows[-1] += "██"
+	rows.append("█" * (size[1]+4))
+	screen = "\n".join(rows)
+	
+	import os
+	if not os.path.exists("screenshots"):
+		os.makedirs("screenshots")
+	
+	import time
+	timestr = time.strftime("%Y%m%d-%H%M%S")
+	with open("screenshots/" + timestr + ".txt", "w") as f:
+		f.write(screen)
 
 def update():
 	global yx, size, tick

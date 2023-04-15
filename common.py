@@ -11,6 +11,9 @@ def load_yaml(path):
 		yaml_data = yaml.safe_load(f)
 	return yaml_data
 
+def clamp(x, minn, maxx):
+	return max(minn, min(maxx, x))
+
 # Add tuple values.
 def add(t0, t1):
 	return (t0[0]+t1[0], t0[1]+t1[1])

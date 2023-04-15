@@ -8,11 +8,26 @@ def call_str(lines):
 import game, keys, view
 game.set_scene("map")
 
+import nodes_gui
+menu = nodes_gui.Menu([
+{"text": "New Game"},
+{"text": "Load"},
+{"text": "Quit"}
+])
+menu.yx = (5, 5)
+game.scene.add_child(menu)
+
 def run():
 	view.init()
 	
+	# Q to quit.
 	while keys.last != ord('q'):
 		keys.last = view.stdscr.getch()
+		
+		# P to screenshot.
+		if keys.was("p"):
+			view.screenshot()
+		
 		view.update()
 		
 		game.update()

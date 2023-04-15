@@ -46,6 +46,12 @@ class Node(object):
 			if child.visible:
 				child.render(yx)
 	
+	def post_render(self, yx):
+		yx = add(yx, self.yx)
+		for child in self.children.values():
+			if child.visible:
+				child.post_render(yx) 
+	
 	def set_properties(self, **kwargs):
 		for k, v in kwargs.items():
 			setattr(self, k, v)
@@ -118,8 +124,8 @@ class PlayerNode(SymbolNode):
 			
 			self.direction = direction
 	
-	def render(self, yx):
-		super(PlayerNode, self).render(yx)
+	def post_render(self, yx):
+		super(PlayerNode, self).post_render(yx)
 		
 		# Direction arrow.
 		py, px = self.yx
@@ -133,18 +139,19 @@ class PlayerNode(SymbolNode):
 			view.draw(add(add(yx, self.yx), self.direction), arr)
 		
 		# Determine what is being looked at.
-		#msg = ""
-		#looking_at = get_at(py+dy, px+dx)
-		#if looking_at["type"] == "tile":
-			#msg = "[" + str(looking_at["tile"]["name"]) + "]"
-		#elif looking_at["type"] == "object":
-			#msg = "[" + str(looking_at["object"]["name"]) + "]"
+		msg = ""
+		looking_at_yx = add(self.yx, self.direction)
+		looking_at = game.scene.get_at(looking_at_yx)
+		if looking_at["type"] == "tile":
+			msg = "[" + str(looking_at["tile"]["name"]) + "]"
+		elif looking_at["type"] == "object":
+			msg = "[" + str(looking_at["object"].name) + "]"
 		
-		## Draw message at bottom of screen.
-		#width, height = view_size
-		#extra = (width - len(msg)) // 2
-		#msg = " "*extra + msg + " "*extra
-		#stdscr.addstr(height, 0, msg)
+		# Draw message at bottom of screen.
+		height, width = view.size
+		extra = (width - len(msg)) // 2
+		msg = " "*extra + msg + " "*extra
+		view.draw_local((height-1, 0), msg)
 		
 class SceneNode(TilesNode):
 	def __init__(self, scene, **kwargs):
@@ -183,7 +190,11 @@ class SceneNode(TilesNode):
 				if was_obj_id:
 					continue
 				
-				if cols[x] == "@":
+				# Empty.
+				if cols[x] == " ":
+					continue
+				# Player.
+				elif cols[x] == "@":
 					player = self.get_child("player")
 					if not player:
 						player = self.add_child(PlayerNode())
@@ -195,6 +206,22 @@ class SceneNode(TilesNode):
 					self.tiles[(y, x)] = cols[x]
 		
 		self.update_bounds()
+	
+	# Get the object or tile at a yx position.
+	def get_at(self, yx):
+		for obj_id in self.children:
+			obj = self.children[obj_id]
+			if obj.yx == yx:
+				return {
+				"type": "object",
+				"object": obj}
+		
+		if yx in self.tiles:
+			return {
+			"type": "tile",
+			"tile": self.tile_info[self.tiles[yx]]}
+	
+		return {"type": ""}
 	
 	def get_collider(self, yx):
 		if yx in self.colliders:
