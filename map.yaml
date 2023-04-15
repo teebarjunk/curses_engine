@@ -1,0 +1,30 @@
+name: The Cool Map
+
+tiles: |
+  ###############
+  #             #
+  #             #
+  #         #####
+  #         D   #<D:door1>
+  #         #   #
+  #####     #####
+         @
+  ###############
+
+objects:
+  door1:
+    name: To Cellar
+    menu:
+      - { text: "Enter Cellar", call: "goto('map2', 'door1')" }
+ 
+text:
+  convo:
+    - {who: mark, say: "What are you doing here? This place is off limits."}
+    - {who: plyr, say: "I'm just visiting."}
+    - menu:
+      text: "Where next?"
+      choices:
+        - {text: The fallen kingdom.}
+        - {text: West of here.}
+  
+  sign_post: All who enter here have disapeared.
